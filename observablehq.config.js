@@ -1,5 +1,12 @@
 // See https://observablehq.com/framework/config for documentation.
+const repoName = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "";
+const isUserOrOrgSite = repoName.endsWith(".github.io");
+const base = repoName && !isUserOrOrgSite ? `/${repoName}/` : "/";
+
 export default {
+  // Required for GitHub Pages project sites (/<repo-name>/).
+  base,
+
   // The app’s title; used in the sidebar and webpage titles.
   title: "Get Vaccinated.",
 

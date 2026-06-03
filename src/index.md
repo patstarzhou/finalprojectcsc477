@@ -22,19 +22,19 @@ toc: false
 ## Polio
 
 <section class="viz-panel">
-  <iframe class="viz-frame viz-polio" src="/polio-scroll" title="Polio in the United States" loading="lazy"></iframe>
+  <iframe class="viz-frame viz-polio" src="polio-scroll" title="Polio in the United States" loading="lazy"></iframe>
 </section>
 
 ## Measles
 
 <section class="viz-panel">
-  <iframe class="viz-frame viz-measles" src="/measles-scroll" title="Measles in the United States" loading="lazy"></iframe>
+  <iframe class="viz-frame viz-measles" src="measles-scroll" title="Measles in the United States" loading="lazy"></iframe>
 </section>
 
 ## COVID-19
 
 <section class="viz-panel">
-  <iframe class="viz-frame viz-covid" src="/covid-scroll" title="COVID-19 in the United States" loading="lazy"></iframe>
+  <iframe class="viz-frame viz-covid" src="covid-scroll" title="COVID-19 in the United States" loading="lazy"></iframe>
 </section>
 
 ## Conclusion
