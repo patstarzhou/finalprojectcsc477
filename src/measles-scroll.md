@@ -702,3 +702,9 @@ display(iRoot.node());
 Measles was declared eliminated from the U.S. in **2000**.
 
 </div>
+
+## Data Source
+
+<div>Public Health Reports; US Census Bureau; Centers for Disease Control and Prevention (1994); Centers for Disease Control and Prevention (CDC) (2026) – processed by Our World in Data</div>
+<br>
+<div>Public Health Reports (1942); US Census Bureau (1952); WHO Mortality Database (2025) – processed by Our World in Data</div>

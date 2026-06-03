@@ -1,23 +1,16 @@
 // See https://observablehq.com/framework/config for documentation.
 export default {
   // The app’s title; used in the sidebar and webpage titles.
-  title: "Finalprojectcsc477",
+  title: "Get Vaccinated.",
 
   // The pages and sections in the sidebar. If you don’t specify this option,
   // all pages will be listed in alphabetical order. Listing pages explicitly
   // lets you organize them into sections and have unlisted pages.
   pages: [
-    { name: "Home", path: "/" },
+    { name: "Get Vaccinated.", path: "/" },
     { name: "Polio in the United States", path: "/polio-scroll" },
     { name: "Measles in the United States", path: "/measles-scroll" },
     { name: "COVID-19 in the United States", path: "/covid-scroll" },
-    {
-      name: "Examples",
-      pages: [
-        { name: "Dashboard", path: "/example-dashboard" },
-        { name: "Report",    path: "/example-report" }
-      ]
-    }
   ],
 
   // Content to add to the head of the page, e.g. for a favicon:
