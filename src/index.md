@@ -22,27 +22,27 @@ toc: false
 ## Polio
 
 <section class="viz-panel">
-  <iframe src="/polio-scroll" title="Polio in the United States" loading="lazy"></iframe>
+  <iframe class="viz-frame viz-polio" src="/polio-scroll" title="Polio in the United States" loading="lazy"></iframe>
 </section>
 
 ## Measles
 
 <section class="viz-panel">
-  <iframe src="/measles-scroll" title="Measles in the United States" loading="lazy"></iframe>
+  <iframe class="viz-frame viz-measles" src="/measles-scroll" title="Measles in the United States" loading="lazy"></iframe>
 </section>
 
 ## COVID-19
 
 <section class="viz-panel">
-  <iframe src="/covid-scroll" title="COVID-19 in the United States" loading="lazy"></iframe>
+  <iframe class="viz-frame viz-covid" src="/covid-scroll" title="COVID-19 in the United States" loading="lazy"></iframe>
 </section>
 
 ## Conclusion
 
 <section class="panel">
   <p>
-    Across all three timelines, the pattern is consistent: once vaccination becomes widespread,
-    severe outcomes decline. The data reinforces one message: vaccination saves lives.
+    Across all three timelines, the pattern is consistent in that once vaccination becomes widespread,
+    deaths decline. The data reinforces one message, and it is that vaccination saves lives.
   </p>
 </section>
 
@@ -130,11 +130,22 @@ h2 {
   background: #fff;
 }
 
-.viz-panel iframe {
+.viz-frame {
   display: block;
   width: 100%;
-  height: 1550px;
   border: 0;
+}
+
+.viz-polio {
+  height: 2150px;
+}
+
+.viz-measles {
+  height: 2200px;
+}
+
+.viz-covid {
+  height: 2350px;
 }
 
 .sources p + p {
@@ -146,8 +157,30 @@ h2 {
     padding: 1.1rem 1rem 1.3rem;
   }
 
-  .viz-panel iframe {
-    height: 1100px;
+  .viz-polio {
+    height: 1450px;
+  }
+
+  .viz-measles {
+    height: 1500px;
+  }
+
+  .viz-covid {
+    height: 1600px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .viz-polio {
+    height: 1800px;
+  }
+
+  .viz-measles {
+    height: 1850px;
+  }
+
+  .viz-covid {
+    height: 1950px;
   }
 }
 </style>

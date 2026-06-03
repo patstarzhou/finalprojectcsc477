@@ -90,7 +90,7 @@ toc: false
 
 COVID-19 killed over a million of Americans within the span of 3 years.
 
-**Scroll down** to watch six years of cases and deaths unfold in real time — from the first cases to widespread vaccination.
+**Scroll down** to watch six years of cases and deaths unfold in real time.
 
 ```js
 import * as d3 from "npm:d3";
