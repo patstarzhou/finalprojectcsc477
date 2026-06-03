@@ -3,109 +3,184 @@ toc: false
 ---
 
 <div class="hero">
-  <h1>Finalprojectcsc477</h1>
-  <h2>Welcome to your new app! Edit&nbsp;<code style="font-size: 90%;">src/index.md</code> to change this page.</h2>
-  <a href="https://observablehq.com/framework/getting-started">Get started<span style="display: inline-block; margin-left: 0.25rem;">↗︎</span></a>
+  <h1 style="color: #FFFFFF;">Get Vaccinated.</h1>
+  <p class="hero-sub"><div>A scrolling narrative on how vaccines changed disease outcomes in the United States.</div></p>
 </div>
 
-<div class="grid grid-cols-2" style="grid-auto-rows: 504px;">
-  <div class="card">${
-    resize((width) => Plot.plot({
-      title: "Your awesomeness over time 🚀",
-      subtitle: "Up and to the right!",
-      width,
-      y: {grid: true, label: "Awesomeness"},
-      marks: [
-        Plot.ruleY([0]),
-        Plot.lineY(aapl, {x: "Date", y: "Close", tip: true})
-      ]
-    }))
-  }</div>
-  <div class="card">${
-    resize((width) => Plot.plot({
-      title: "How big are penguins, anyway? 🐧",
-      width,
-      grid: true,
-      x: {label: "Body mass (g)"},
-      y: {label: "Flipper length (mm)"},
-      color: {legend: true},
-      marks: [
-        Plot.linearRegressionY(penguins, {x: "body_mass_g", y: "flipper_length_mm", stroke: "species"}),
-        Plot.dot(penguins, {x: "body_mass_g", y: "flipper_length_mm", stroke: "species", tip: true})
-      ]
-    }))
-  }</div>
-</div>
+## Introduction
 
----
+<section class="panel">
+  <div>
+    Before modern medicine, diseases terrorized human populations all over the world. Outbreaks of
+    measles and polio killed thousands yearly. The development and widespread adoption of vaccines
+    almost, if not completely, eradicated these former killers. For our project, we wanted to visualize
+    the impact of polio, measles, and COVID-19 in the US, and the role that modern vaccinations have
+    played in stopping the spread of these diseases that have killed millions throughout human history.
+  </div>
+</section>
 
-## Next steps
+## Polio
 
-Here are some ideas of things you could try…
+<section class="viz-panel">
+  <iframe class="viz-frame viz-polio" src="/polio-scroll" title="Polio in the United States" loading="lazy"></iframe>
+</section>
 
-<div class="grid grid-cols-4">
-  <div class="card">
-    Chart your own data using <a href="https://observablehq.com/framework/lib/plot"><code>Plot</code></a> and <a href="https://observablehq.com/framework/files"><code>FileAttachment</code></a>. Make it responsive using <a href="https://observablehq.com/framework/javascript#resize(render)"><code>resize</code></a>.
+## Measles
+
+<section class="viz-panel">
+  <iframe class="viz-frame viz-measles" src="/measles-scroll" title="Measles in the United States" loading="lazy"></iframe>
+</section>
+
+## COVID-19
+
+<section class="viz-panel">
+  <iframe class="viz-frame viz-covid" src="/covid-scroll" title="COVID-19 in the United States" loading="lazy"></iframe>
+</section>
+
+## Conclusion
+
+<section class="panel">
+  <div>
+    Across all three timelines, the pattern is consistent in that once vaccination becomes widespread,
+    deaths decline. The data reinforces one message, and it is that vaccination saves lives.
   </div>
-  <div class="card">
-    Create a <a href="https://observablehq.com/framework/project-structure">new page</a> by adding a Markdown file (<code>whatever.md</code>) to the <code>src</code> folder.
-  </div>
-  <div class="card">
-    Add a drop-down menu using <a href="https://observablehq.com/framework/inputs/select"><code>Inputs.select</code></a> and use it to filter the data shown in a chart.
-  </div>
-  <div class="card">
-    Write a <a href="https://observablehq.com/framework/loaders">data loader</a> that queries a local database or API, generating a data snapshot on build.
-  </div>
-  <div class="card">
-    Import a <a href="https://observablehq.com/framework/imports">recommended library</a> from npm, such as <a href="https://observablehq.com/framework/lib/leaflet">Leaflet</a>, <a href="https://observablehq.com/framework/lib/dot">GraphViz</a>, <a href="https://observablehq.com/framework/lib/tex">TeX</a>, or <a href="https://observablehq.com/framework/lib/duckdb">DuckDB</a>.
-  </div>
-  <div class="card">
-    Ask for help, or share your work or ideas, on our <a href="https://github.com/observablehq/framework/discussions">GitHub discussions</a>.
-  </div>
-  <div class="card">
-    Visit <a href="https://github.com/observablehq/framework">Framework on GitHub</a> and give us a star. Or file an issue if you’ve found a bug!
-  </div>
-</div>
+</section>
+
+## Data Sources
+
+<section class="panel sources">
+  <p><strong>Polio:</strong>
+    <div>Public Health Reports (1942); United States Census Bureau (1945); Centers for Disease Control and Prevention (2023) – processed by <a href="https://ourworldindata.org/grapher/reported-paralytic-polio-cases-and-deaths-in-the-united-states-since-1910">Our World in Data</a></div>
+    <br>
+    <div>Public Health Reports (1942); Centers for Disease Control and Prevention (2023) – processed by <a href="https://ourworldindata.org/grapher/reported-paralytic-polio-cases-and-deaths-in-the-united-states-since-1910">Our World in Data</a></div>
+  </p>
+  <p><strong>Measles:</strong> 
+    <div>Public Health Reports; US Census Bureau; Centers for Disease Control and Prevention (1994); Centers for Disease Control and Prevention (CDC) (2026) – processed by <a href="https://ourworldindata.org/grapher/measles-cases-and-death">Our World in Data</a></div>
+    <br>
+    <div>Public Health Reports (1942); US Census Bureau (1952); WHO Mortality Database (2025) – processed by <a href="https://ourworldindata.org/grapher/measles-cases-and-death">Our World in Data</a></div>
+  </p>
+  <p><strong>COVID-19:</strong>
+  <div>“Covid-19 Data | Who Covid-19 Dashboard.” World Health Organization, World Health Organization, data.who.int/dashboards/covid19/data. <a href="https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-daily-data.csv">Daily frequency reporting of new COVID-19 cases and deaths by date reported to WHO </a>, aggregated to weekly counts in this project.</div> </p>
+</section>
 
 <style>
-
 .hero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: var(--sans-serif);
-  margin: 4rem 0 8rem;
-  text-wrap: balance;
+  justify-content: center;
+  margin: 2.5rem 0 2rem;
   text-align: center;
 }
 
 .hero h1 {
-  margin: 1rem 0;
-  padding: 1rem 0;
-  max-width: none;
-  font-size: 14vw;
-  font-weight: 900;
-  line-height: 1;
-  background: linear-gradient(30deg, var(--theme-foreground-focus), currentColor);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.hero h2 {
   margin: 0;
-  max-width: 34em;
-  font-size: 20px;
-  font-style: initial;
-  font-weight: 500;
-  line-height: 1.5;
-  color: var(--theme-foreground-muted);
+  font-family: var(--sans-serif);
+  font-size: clamp(2.4rem, 6vw, 4.8rem);
+  font-weight: 850;
+  letter-spacing: 0.01em;
+  line-height: 1;
 }
 
-@media (min-width: 640px) {
-  .hero h1 {
-    font-size: 90px;
+.hero-sub {
+  margin: 0.8rem 0 0;
+  max-width: 62ch;
+  font-family: var(--sans-serif);
+  color: #ffffff;
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+.panel {
+  max-width: 880px;
+  margin: 0 auto 2.4rem;
+  padding: 1.5rem 1.25rem 1.75rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.section-lead {
+  max-width: 880px;
+  margin: 0.2rem auto 0.85rem;
+  font-family: var(--sans-serif);
+  color: #ffffff;
+}
+
+.panel p {
+  margin: 0;
+  font-family: var(--sans-serif);
+  font-size: 1.04rem;
+  line-height: 1.75;
+  color: #ffffff;
+}
+
+h2 {
+  color: #ffffff;
+}
+
+.viz-panel {
+  max-width: 1000px;
+  margin: 0 auto 2.8rem;
+  border: 1px solid #dbe3f3;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.11);
+  background: #fff;
+}
+
+.viz-frame {
+  display: block;
+  width: 100%;
+  border: 0;
+}
+
+.viz-polio {
+  height: 2150px;
+}
+
+.viz-measles {
+  height: 2200px;
+}
+
+.viz-covid {
+  height: 2350px;
+}
+
+.sources p + p {
+  margin-top: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .panel {
+    padding: 1.1rem 1rem 1.3rem;
+  }
+
+  .viz-polio {
+    height: 1450px;
+  }
+
+  .viz-measles {
+    height: 1500px;
+  }
+
+  .viz-covid {
+    height: 1600px;
   }
 }
 
+@media (min-width: 641px) and (max-width: 1024px) {
+  .viz-polio {
+    height: 1800px;
+  }
+
+  .viz-measles {
+    height: 1850px;
+  }
+
+  .viz-covid {
+    height: 1950px;
+  }
+}
 </style>
