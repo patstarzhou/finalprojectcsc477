@@ -4,10 +4,12 @@ toc: false
 
 <div class="hero">
   <h1>Get Vaccinated.</h1>
+  <p class="hero-sub">A scrolling narrative on how vaccines changed disease outcomes in the United States.</p>
 </div>
 
-<section class="intro-wrap">
-  <h2>Introduction</h2>
+## Introduction
+
+<section class="panel">
   <p>
     Before modern medicine, diseases terrorized human populations all over the world. Outbreaks of
     measles and polio killed thousands yearly. The development and widespread adoption of vaccines
@@ -17,11 +19,58 @@ toc: false
   </p>
 </section>
 
+## Polio
+
+<section class="viz-panel">
+  <iframe src="/polio-scroll" title="Polio in the United States" loading="lazy"></iframe>
+</section>
+
+## Measles
+
+<section class="viz-panel">
+  <iframe src="/measles-scroll" title="Measles in the United States" loading="lazy"></iframe>
+</section>
+
+## COVID-19
+
+<section class="viz-panel">
+  <iframe src="/covid-scroll" title="COVID-19 in the United States" loading="lazy"></iframe>
+</section>
+
+## Conclusion
+
+<section class="panel">
+  <p>
+    Across all three timelines, the pattern is consistent: once vaccination becomes widespread,
+    severe outcomes decline. The data reinforces one message: vaccination saves lives.
+  </p>
+</section>
+
+## Data Sources
+
+<section class="panel sources">
+  <p><strong>Polio:</strong>
+    <div>Public Health Reports (1942); United States Census Bureau (1945); Centers for Disease Control and Prevention (2023) – processed by <a href="https://ourworldindata.org/grapher/reported-paralytic-polio-cases-and-deaths-in-the-united-states-since-1910">Our World in Data</a></div>
+    <br>
+    <div>Public Health Reports (1942); Centers for Disease Control and Prevention (2023) – processed by <a href="https://ourworldindata.org/grapher/reported-paralytic-polio-cases-and-deaths-in-the-united-states-since-1910">Our World in Data</a></div>
+  </p>
+  <p><strong>Measles:</strong> 
+    <div>Public Health Reports; US Census Bureau; Centers for Disease Control and Prevention (1994); Centers for Disease Control and Prevention (CDC) (2026) – processed by <a href="https://ourworldindata.org/grapher/measles-cases-and-death">Our World in Data</a></div>
+    <br>
+    <div>Public Health Reports (1942); US Census Bureau (1952); WHO Mortality Database (2025) – processed by <a href="https://ourworldindata.org/grapher/measles-cases-and-death">Our World in Data</a></div>
+  </p>
+  <p><strong>COVID-19:</strong>
+  <div>“Covid-19 Data | Who Covid-19 Dashboard.” World Health Organization, World Health Organization, data.who.int/dashboards/covid19/data. <a href="https://srhdpeuwpubsa.blob.core.windows.net/whdh/COVID/WHO-COVID-19-global-daily-data.csv">Daily frequency reporting of new COVID-19 cases and deaths by date reported to WHO </a>, aggregated to weekly counts in this project.</div> </p>
+</section>
+
 <style>
 .hero {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  margin: 3rem 0 2rem;
+  margin: 2.5rem 0 2rem;
+  text-align: center;
 }
 
 .hero h1 {
@@ -33,33 +82,72 @@ toc: false
   line-height: 1;
 }
 
-.intro-wrap {
-  max-width: 880px;
-  margin: 0 auto 3rem;
-  padding: 1.5rem 1.25rem 1.75rem;
-  border: 1px solid #dbe3f3;
-  border-radius: 14px;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
-}
-
-.intro-wrap h2 {
-  margin: 0 0 0.75rem;
+.hero-sub {
+  margin: 0.8rem 0 0;
+  max-width: 62ch;
   font-family: var(--sans-serif);
-  font-size: clamp(1.25rem, 2vw, 1.7rem);
-  font-weight: 750;
+  color: #ffffff;
+  font-size: 1.02rem;
+  line-height: 1.55;
 }
 
-.intro-wrap p {
+.panel {
+  max-width: 880px;
+  margin: 0 auto 2.4rem;
+  padding: 1.5rem 1.25rem 1.75rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.section-lead {
+  max-width: 880px;
+  margin: 0.2rem auto 0.85rem;
+  font-family: var(--sans-serif);
+  color: #ffffff;
+}
+
+.panel p {
   margin: 0;
   font-family: var(--sans-serif);
   font-size: 1.04rem;
   line-height: 1.75;
+  color: #ffffff;
+}
+
+h2 {
+  color: #ffffff;
+}
+
+.viz-panel {
+  max-width: 1000px;
+  margin: 0 auto 2.8rem;
+  border: 1px solid #dbe3f3;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.11);
+  background: #fff;
+}
+
+.viz-panel iframe {
+  display: block;
+  width: 100%;
+  height: 1550px;
+  border: 0;
+}
+
+.sources p + p {
+  margin-top: 0.9rem;
 }
 
 @media (max-width: 640px) {
-  .intro-wrap {
+  .panel {
     padding: 1.1rem 1rem 1.3rem;
-    border-radius: 12px;
+  }
+
+  .viz-panel iframe {
+    height: 1100px;
   }
 }
 </style>
