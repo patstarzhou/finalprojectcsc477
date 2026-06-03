@@ -3,20 +3,20 @@ toc: false
 ---
 
 <div class="hero">
-  <h1>Get Vaccinated.</h1>
-  <p class="hero-sub">A scrolling narrative on how vaccines changed disease outcomes in the United States.</p>
+  <h1 style="color: #FFFFFF;">Get Vaccinated.</h1>
+  <p class="hero-sub"><div>A scrolling narrative on how vaccines changed disease outcomes in the United States.</div></p>
 </div>
 
 ## Introduction
 
 <section class="panel">
-  <p>
+  <div>
     Before modern medicine, diseases terrorized human populations all over the world. Outbreaks of
     measles and polio killed thousands yearly. The development and widespread adoption of vaccines
     almost, if not completely, eradicated these former killers. For our project, we wanted to visualize
     the impact of polio, measles, and COVID-19 in the US, and the role that modern vaccinations have
     played in stopping the spread of these diseases that have killed millions throughout human history.
-  </p>
+  </div>
 </section>
 
 ## Polio
@@ -40,10 +40,10 @@ toc: false
 ## Conclusion
 
 <section class="panel">
-  <p>
+  <div>
     Across all three timelines, the pattern is consistent in that once vaccination becomes widespread,
     deaths decline. The data reinforces one message, and it is that vaccination saves lives.
-  </p>
+  </div>
 </section>
 
 ## Data Sources

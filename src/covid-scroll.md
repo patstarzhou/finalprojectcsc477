@@ -759,7 +759,7 @@ display(iRoot.node());
 </div>
 
 <div class="callout">
-<strong>Moderna rollout (Dec 21, 2020)</strong> - One week later, Moderna doses began public deployment, expanding vaccine supply and accelerating protection for high-risk groups.
+<strong>Moderna rollout (Dec 21, 2020)</strong> - One week later, Moderna doses began public deployment, expanding vaccine supply.
 </div>
 
 As vaccine coverage increased through 2021, deaths declined substantially relative to the largest pre-vaccine waves, even as new variants continued to drive case surges.
