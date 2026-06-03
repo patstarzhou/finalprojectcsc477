@@ -9,6 +9,8 @@ export default {
   pages: [
     { name: "Home", path: "/" },
     { name: "Polio in the United States", path: "/polio-scroll" },
+    { name: "Measles in the United States", path: "/measles-scroll" },
+    { name: "COVID-19 in the United States", path: "/covid-scroll" },
     {
       name: "Examples",
       pages: [

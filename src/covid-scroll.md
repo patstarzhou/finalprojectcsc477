@@ -1,10 +1,10 @@
 ---
-title: The Rise and Fall of Polio
+title: The Impact of COVID-19 Vaccines
 toc: false
 ---
 
 <style>
-#polio-root {
+#covid-root {
   font-family: var(--sans-serif);
 }
 #scroll-section {
@@ -86,25 +86,68 @@ toc: false
 .ichart .tick line { stroke: var(--theme-foreground-muted, #888); }
 </style>
 
-# The Rise and Fall of Polio in the United States
+# The Impact of COVID-19 Vaccines in the United States
 
-Polio paralyzed tens of thousands of Americans every year at its peak.
+COVID-19 killed over a million of Americans within the span of 3 years.
 
-**Scroll down** to watch decades of cases and deaths visualized in real time.
+**Scroll down** to watch six years of cases and deaths unfold in real time — from the first cases to widespread vaccination.
 
 ```js
 import * as d3 from "npm:d3";
 
-const rawData = await FileAttachment("data/reported-paralytic-polio-cases-and-deaths-in-the-united-states-since-1910.csv").csv({typed: true});
+const rawData = await FileAttachment("data/covid-weekly.csv").csv({typed: true});
 
 const data = rawData
-  .map(d => ({ year: +d.Year, cases: +d.Cases, deaths: +d.Deaths }))
-  .filter(d => !isNaN(d.year) && !isNaN(d.cases))
-  .sort((a, b) => a.year - b.year);
+  .map(d => ({ date: new Date(d.Week), cases: +d.Cases, deaths: +d.Deaths }))
+  .filter(d => !isNaN(d.date.getTime()) && !isNaN(d.cases))
+  .sort((a, b) => a.date - b.date);
 
-const MIN_YEAR = 1910;
-const MAX_YEAR = 2023;
-const START_YEAR = 1915;
+const dataByTime = new Map(data.map(d => [d.date.getTime(), d]));
+
+const MIN_DATE = new Date("2020-01-05");
+const MAX_DATE = new Date("2026-05-05");
+const START_DATE = new Date("2020-02-01");
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const MIN_WINDOW_MS = WEEK_MS;
+
+const fmtAxisShort = d3.utcFormat("%b %-d");
+const fmtAxisMonth = d3.utcFormat("%b %Y");
+const fmtTip = d3.utcFormat("%b %-d, %Y");
+
+function clampDate(ms) {
+  return new Date(Math.max(MIN_DATE.getTime(), Math.min(MAX_DATE.getTime(), ms)));
+}
+
+function snapToWeek(dateLike) {
+  const ms = dateLike instanceof Date ? dateLike.getTime() : +dateLike;
+  const snapped = MIN_DATE.getTime() + Math.round((ms - MIN_DATE.getTime()) / WEEK_MS) * WEEK_MS;
+  return clampDate(snapped);
+}
+
+function getTickInterval(minDate, maxDate) {
+  const weeks = (maxDate - minDate) / WEEK_MS;
+  if (weeks <= 12) return d3.utcWeek.every(1);
+  if (weeks <= 24) return d3.utcWeek.every(2);
+  if (weeks <= 60) return d3.utcMonth.every(1);
+  if (weeks <= 120) return d3.utcMonth.every(2);
+  return d3.utcMonth.every(4);
+}
+
+function makeTimeAxis(scale, minDate, maxDate) {
+  const weeks = (maxDate - minDate) / WEEK_MS;
+  const interval = getTickInterval(minDate, maxDate);
+  const formatter = weeks <= 14 ? fmtAxisShort : fmtAxisMonth;
+  return d3.axisBottom(scale).ticks(interval).tickFormat(formatter);
+}
+
+function styleTimeAxisLabels(axisG) {
+  axisG.selectAll("text")
+    .style("text-anchor", "end")
+    .attr("transform", "rotate(-35)")
+    .attr("dx", "-0.55em")
+    .attr("dy", "0.35em");
+}
 
 const maxCases  = d3.max(data, d => d.cases);
 const maxDeaths = d3.max(data, d => d.deaths);
@@ -117,7 +160,7 @@ const H_CASES  = 300;
 const H_DEATHS = 240;
 
 // ── Root container ───────────────────────────────────────────────────────────
-const root = d3.create("div").attr("id", "polio-root");
+const root = d3.create("div").attr("id", "covid-root");
 
 // ── Scroll section: sticky chart + tall spacer ───────────────────────────────
 const scrollSection = root.append("div").attr("id", "scroll-section");
@@ -166,7 +209,7 @@ function buildChart({ title, fillColor, strokeColor, height, yScale, selector })
     g.append("text")
       .attr("x", W / 2).attr("y", height + 38)
       .attr("text-anchor", "middle").style("font-size", "12px")
-      .text("Year");
+      // .text("Year");
   }
 
   // Area path
@@ -178,27 +221,27 @@ function buildChart({ title, fillColor, strokeColor, height, yScale, selector })
   const vaccineEls = {};
   if (selector === "cases") {
     const vaccines = [
-      { year: 1955, label: "IPV (1955)", dy: -130 },
-      { year: 1961, label: "OPV (1961)", dy: -70 },
+      { date: new Date("2020-12-14"), label: "Vaccines (Dec 2020)", dy: -90 },
     ];
     vaccines.forEach(v => {
-      vaccineEls[`line-${v.year}`] = g.append("line")
+      const key = v.date.toISOString().split("T")[0];  // "2020-12-14"
+      vaccineEls[`line-${key}`] = g.append("line")
         .attr("y1", 0).attr("y2", height)
         .attr("stroke", "#11910f").attr("stroke-dasharray", "4,3")
         .attr("opacity", 0);
-      vaccineEls[`label-${v.year}`] = g.append("text")
+      vaccineEls[`label-${key}`] = g.append("text")
         .attr("fill", "#0b7509").style("font-size", "11px")
         .attr("opacity", 0).text(v.label);
-      vaccineEls[`_dy_${v.year}`] = v.dy;
+      vaccineEls[`_dy_${key}`] = v.dy;
     });
   } else {
     // Deaths chart also gets vaccine lines (no label)
-    [1955, 1961].forEach(yr => {
-      vaccineEls[`line-${yr}`] = g.append("line")
-        .attr("y1", 0).attr("y2", height)
-        .attr("stroke", "#16a34a").attr("stroke-dasharray", "4,3")
-        .attr("opacity", 0);
-    });
+    const vdate = new Date("2020-12-14");
+    const key = vdate.toISOString().split("T")[0];
+    vaccineEls[`line-${key}`] = g.append("line")
+      .attr("y1", 0).attr("y2", height)
+      .attr("stroke", "#16a34a").attr("stroke-dasharray", "4,3")
+      .attr("opacity", 0);
   }
 
   // Hover overlay, crosshair, dot
@@ -213,16 +256,14 @@ function buildChart({ title, fillColor, strokeColor, height, yScale, selector })
     .attr("width", W).attr("height", height).attr("fill", "transparent")
     .on("mousemove", function(event) {
       const [mx] = d3.pointer(event, this);
-      // currentX is closure'd from outer scope
-      const yr = Math.round(currentX.invert(mx));
-      const d = data.find(p => p.year === yr);
-      if (!d || d.year > currentMaxYear) {
+      const d = dataByTime.get(snapToWeek(currentX.invert(mx)).getTime());
+      if (!d || d.date > currentMaxYear) {
         hoverLine.attr("opacity", 0);
         hoverDot.attr("opacity", 0);
         tooltip.style("opacity", 0);
         return;
       }
-      const cx = currentX(d.year);
+      const cx = currentX(d.date);
       const val = selector === "cases" ? d.cases : d.deaths;
       const cy  = selector === "cases" ? yCases(d.cases) : yDeaths(d.deaths);
       hoverLine.attr("x1", cx).attr("x2", cx).attr("opacity", 1);
@@ -231,7 +272,7 @@ function buildChart({ title, fillColor, strokeColor, height, yScale, selector })
         .style("left",  (event.clientX + 14) + "px")
         .style("top",   (event.clientY - 36) + "px")
         .style("opacity", 1)
-        .html(`<strong>${d.year}</strong><br>${selector === "cases" ? "Cases" : "Deaths"}: <strong>${d3.format(",")(val)}</strong>`);
+        .html(`<strong>${fmtTip(d.date)}</strong><br>${selector === "cases" ? "Cases" : "Deaths"}: <strong>${d3.format(",")(val)}</strong>`);
     })
     .on("mouseleave", () => {
       hoverLine.attr("opacity", 0);
@@ -248,16 +289,16 @@ const yCases  = d3.scaleLinear().domain([0, maxCases  * 1.05]).range([H_CASES,  
 const yDeaths = d3.scaleLinear().domain([0, maxDeaths * 1.05]).range([H_DEATHS, 0]);
 
 // currentX is the live x scale used in mousemove closures
-let currentX = d3.scaleLinear().domain([MIN_YEAR, START_YEAR]).range([0, W]);
-let currentMaxYear = START_YEAR;
+let currentX = d3.scaleTime().domain([MIN_DATE, START_DATE]).range([0, W]);
+let currentMaxYear = START_DATE;
 
 // ── Area generators ───────────────────────────────────────────────────────────
 const areaCasesGen = d3.area()
-  .x(d => currentX(d.year)).y0(H_CASES).y1(d => yCases(d.cases))
+  .x(d => currentX(d.date)).y0(H_CASES).y1(d => yCases(d.cases))
   .curve(d3.curveMonotoneX);
 
 const areaDeathsGen = d3.area()
-  .x(d => currentX(d.year)).y0(H_DEATHS).y1(d => yDeaths(d.deaths))
+  .x(d => currentX(d.date)).y0(H_DEATHS).y1(d => yDeaths(d.deaths))
   .curve(d3.curveMonotoneX);
 
 // ── Tooltip (fixed position, appended to body) ────────────────────────────────
@@ -275,13 +316,13 @@ const tooltip = d3.select("body").append("div")
 
 // ── Build charts ──────────────────────────────────────────────────────────────
 const casesChart  = buildChart({
-  title: "Recorded Polio Cases, United States (1910–2023)",
+  title: "Recorded COVID-19 Cases, United States (Jan 2020 – May 2026)",
   fillColor: "#3b82f6", strokeColor: "#1e40af",
   height: H_CASES, yScale: yCases, selector: "cases",
 });
 
 const deathsChart = buildChart({
-  title: "Recorded Polio Deaths, United States (1910–2023)",
+  title: "Recorded COVID-19 Deaths, United States (Jan 2020 – May 2026)",
   fillColor: "#ef4444", strokeColor: "#991b1b",
   height: H_DEATHS, yScale: yDeaths, selector: "deaths",
 });
@@ -294,14 +335,14 @@ scrollSection.append("div").style("height", "5000px");
 
 // ── Update function ───────────────────────────────────────────────────────────
 function update(maxYr) {
-  currentMaxYear = maxYr;
-  currentX = d3.scaleLinear().domain([MIN_YEAR, maxYr]).range([0, W]);
+  currentMaxYear = snapToWeek(maxYr);
+  currentX = d3.scaleTime().domain([MIN_DATE, currentMaxYear]).range([0, W]);
 
   // Re-bind area generators to updated scale
-  areaCasesGen.x(d => currentX(d.year));
-  areaDeathsGen.x(d => currentX(d.year));
+  areaCasesGen.x(d => currentX(d.date));
+  areaDeathsGen.x(d => currentX(d.date));
 
-  const filtered = data.filter(d => d.year <= maxYr);
+  const filtered = data.filter(d => d.date <= currentMaxYear);
   if (filtered.length === 0) return;
 
   // Update area paths
@@ -309,34 +350,34 @@ function update(maxYr) {
   deathsChart.areaPath.attr("d", areaDeathsGen(filtered));
 
   // Update x axes — fewer ticks when range is narrow
-  const range = maxYr - MIN_YEAR;
-  const tickCount = range <= 8 ? range : range <= 20 ? 5 : range <= 50 ? 8 : 12;
-  const xAxisFn = d3.axisBottom(currentX).tickFormat(d3.format("d")).ticks(tickCount);
+  const xAxisFn = makeTimeAxis(currentX, MIN_DATE, currentMaxYear);
   casesChart.xAxisG.call(xAxisFn);
   deathsChart.xAxisG.call(xAxisFn);
+  styleTimeAxisLabels(casesChart.xAxisG);
+  styleTimeAxisLabels(deathsChart.xAxisG);
 
   // Vaccine markers
-  [1955, 1961].forEach(yr => {
-    const show = maxYr >= yr;
-    const vx = currentX(yr);
+  const vaccineDate = new Date("2020-12-14");
+  const vaccKey = "2020-12-14";  // ISO string key
+  const show = currentMaxYear >= vaccineDate;
+  const vx = currentX(vaccineDate);
 
-    // Cases chart line + label
-    casesChart.vaccineEls[`line-${yr}`]
-      .attr("x1", vx).attr("x2", vx).attr("opacity", show ? 1 : 0);
-    if (casesChart.vaccineEls[`label-${yr}`]) {
-      casesChart.vaccineEls[`label-${yr}`]
-        .attr("x", vx + 5)
-        .attr("y", H_CASES + casesChart.vaccineEls[`_dy_${yr}`])
-        .attr("opacity", show ? 1 : 0);
-    }
+  // Cases chart line + label
+  casesChart.vaccineEls[`line-${vaccKey}`]
+    .attr("x1", vx).attr("x2", vx).attr("opacity", show ? 1 : 0);
+  if (casesChart.vaccineEls[`label-${vaccKey}`]) {
+    casesChart.vaccineEls[`label-${vaccKey}`]
+      .attr("x", vx + 5)
+      .attr("y", H_CASES + casesChart.vaccineEls[`_dy_${vaccKey}`])
+      .attr("opacity", show ? 1 : 0);
+  }
 
-    // Deaths chart line
-    deathsChart.vaccineEls[`line-${yr}`]
-      .attr("x1", vx).attr("x2", vx).attr("opacity", show ? 1 : 0);
-  });
+  // Deaths chart line
+  deathsChart.vaccineEls[`line-${vaccKey}`]
+    .attr("x1", vx).attr("x2", vx).attr("opacity", show ? 1 : 0);
 
   // Hide scroll hint once we've seen all data
-  if (maxYr >= MAX_YEAR - 2) {
+  if (currentMaxYear >= MAX_DATE - WEEK_MS) {
     sticky.select(".scroll-hint").style("opacity", 0);
   } else {
     sticky.select(".scroll-hint").style("opacity", 1);
@@ -351,14 +392,14 @@ function onScroll() {
   const scrolled  = -rect.top;
   const scrollable = sec.offsetHeight - window.innerHeight;
   const progress  = Math.max(0, Math.min(1, scrolled / scrollable));
-  const targetYear = START_YEAR + progress * (MAX_YEAR - START_YEAR);
+  const targetYear = START_DATE.getTime() + progress * (MAX_DATE.getTime() - START_DATE.getTime());
   update(targetYear);
 }
 
 window.addEventListener("scroll", onScroll, { passive: true });
 
 // Initial render
-update(START_YEAR);
+update(START_DATE);
 
 display(root.node());
 ```
@@ -372,7 +413,7 @@ Adjust the year range with the sliders, drag on the **cases chart** to zoom in, 
 ```js
 /* Interactive section */
 
-let iMinYear = MIN_YEAR, iMaxYear = MAX_YEAR;
+let iMinDate = MIN_DATE, iMaxDate = MAX_DATE;
 let iShowMortality = false;
 
 const IM  = { top: 50, right: 70, bottom: 42, left: 78 };
@@ -388,14 +429,14 @@ const iRoot = d3.create("div").attr("id", "interactive-root");
 const iCtrl = iRoot.append("div").attr("class", "i-controls");
 
 const iPresets = [
-  { label: "1910s Outbreaks",  min: 1910, max: 1925 },
-  { label: "1950s Peak",       min: 1945, max: 1965 },
-  { label: "Post-Vaccine",     min: 1955, max: 1985 },
-  { label: "All Years",        min: MIN_YEAR, max: MAX_YEAR },
+  { label: "Early 2020",       min: new Date("2020-01-01"), max: new Date("2020-06-30") },
+  { label: "Pre-Vaccine Peak", min: new Date("2020-10-01"), max: new Date("2021-01-31") },
+  { label: "Post-Vaccine",     min: new Date("2021-01-01"), max: new Date("2022-12-31") },
+  { label: "All Years",        min: MIN_DATE, max: MAX_DATE },
 ];
 iPresets.forEach(p => {
   iCtrl.append("button").attr("class", "i-btn preset").text(p.label)
-    .on("click", () => { iMinYear = p.min; iMaxYear = p.max; iUpdate(); iSyncSliders(); });
+    .on("click", () => { iMinDate = p.min; iMaxDate = p.max; iUpdate(); iSyncSliders(); });
 });
 
 iCtrl.append("span").attr("class", "i-sep");
@@ -407,14 +448,14 @@ const iMortBtn = iCtrl.append("button").attr("class", "i-btn toggle mort").text(
     iUpdate();
   });
 
-// Dual-handle year range slider (D3 SVG)
+// ── Dual-handle year range slider (D3 SVG) ────────────────────────────────────
 const SLIDER_W   = 620;
 const SLIDER_PAD = 14;   // room for handle radius at each end
 const SLIDER_TW  = SLIDER_W - SLIDER_PAD * 2;
-const sliderScale = d3.scaleLinear().domain([MIN_YEAR, MAX_YEAR]).range([0, SLIDER_TW]).clamp(true);
+const sliderScale = d3.scaleTime().domain([MIN_DATE, MAX_DATE]).range([0, SLIDER_TW]).clamp(true);
 
 const sliderWrap = iRoot.append("div").attr("class", "i-sliders");
-const slMinLbl = sliderWrap.append("span").attr("class", "sl-val").text(MIN_YEAR);
+const slMinLbl = sliderWrap.append("span").attr("class", "sl-val").text("Jan 2020");
 
 const sliderSvg = sliderWrap.append("svg")
   .attr("width", SLIDER_W).attr("height", 44).style("vertical-align", "middle").style("overflow","visible");
@@ -426,9 +467,9 @@ slG.append("line").attr("x1", 0).attr("x2", SLIDER_TW)
 // Active track (between handles)
 const slActive = slG.append("line")
   .attr("stroke", "#3b82f6").attr("stroke-width", 5).attr("stroke-linecap", "round");
-// Decade tick marks
-[1910,1920,1930,1940,1950,1960,1970,1980,1990,2000,2010,2020].forEach(yr => {
-  slG.append("line").attr("x1", sliderScale(yr)).attr("x2", sliderScale(yr))
+// Year tick marks
+d3.utcYear.range(d3.utcYear.floor(MIN_DATE), d3.utcYear.offset(MAX_DATE, 1)).forEach(dt => {
+  slG.append("line").attr("x1", sliderScale(dt)).attr("x2", sliderScale(dt))
     .attr("y1", 6).attr("y2", 11).attr("stroke", "#bbb").attr("stroke-width", 1);
 });
 // Handles
@@ -437,47 +478,51 @@ const slMinH = slG.append("circle").attr("r", 10).attr("class","sl-handle")
 const slMaxH = slG.append("circle").attr("r", 10).attr("class","sl-handle")
   .attr("fill","#3b82f6").attr("stroke","#fff").attr("stroke-width",2.5).style("cursor","ew-resize");
 
-const slMaxLbl = sliderWrap.append("span").attr("class", "sl-val").text(MAX_YEAR);
+const slMaxLbl = sliderWrap.append("span").attr("class", "sl-val").text("May 2026");
 sliderWrap.append("span").attr("class", "sl-hint").text("drag handles · double-click chart to reset");
 
 // ── Stats row (sits between slider and charts, updates with range) ────────────
 const iStatsEl = iRoot.append("div").attr("class", "i-stats");
 
 function sliderRender() {
-  const x0 = sliderScale(iMinYear), x1 = sliderScale(iMaxYear);
+  const x0 = sliderScale(iMinDate), x1 = sliderScale(iMaxDate);
   slMinH.attr("cx", x0);
   slMaxH.attr("cx", x1);
   slActive.attr("x1", x0).attr("x2", x1);
-  slMinLbl.text(iMinYear);
-  slMaxLbl.text(iMaxYear);
+  slMinLbl.text(fmtAxisMonth(iMinDate));
+  slMaxLbl.text(fmtAxisMonth(iMaxDate));
 }
 
 slMinH.call(d3.drag().on("drag", function (event) {
-  iMinYear = Math.max(MIN_YEAR, Math.min(iMaxYear - 2, Math.round(sliderScale.invert(event.x))));
+  const candidate = snapToWeek(sliderScale.invert(event.x));
+  const upper = new Date(iMaxDate.getTime() - MIN_WINDOW_MS);
+  iMinDate = new Date(Math.max(MIN_DATE.getTime(), Math.min(upper.getTime(), candidate.getTime())));
   sliderRender(); iUpdate();
 }));
 slMaxH.call(d3.drag().on("drag", function (event) {
-  iMaxYear = Math.min(MAX_YEAR, Math.max(iMinYear + 2, Math.round(sliderScale.invert(event.x))));
+  const candidate = snapToWeek(sliderScale.invert(event.x));
+  const lower = new Date(iMinDate.getTime() + MIN_WINDOW_MS);
+  iMaxDate = new Date(Math.min(MAX_DATE.getTime(), Math.max(lower.getTime(), candidate.getTime())));
   sliderRender(); iUpdate();
 }));
 
-// Scales
-const ix = d3.scaleLinear().range([0, IW]);
+// ── Scales ────────────────────────────────────────────────────────────────────
+const ix = d3.scaleTime().range([0, IW]);
 let iyCases, iyDeaths, iyMort;
 
 function iComputeScales() {
-  const vis  = data.filter(d => d.year >= iMinYear && d.year <= iMaxYear);
+  const vis  = data.filter(d => d.date >= iMinDate && d.date <= iMaxDate);
   const maxC = d3.max(vis, d => d.cases)  || 1;
   const maxD = d3.max(vis, d => d.deaths) || 1;
   // Mortality capped at 100%: deaths can't exceed cases in reality
   const maxM = Math.min(100, d3.max(vis.filter(d => d.cases > 0), d => d.deaths / d.cases * 100) || 1);
-  ix.domain([iMinYear, iMaxYear]);
+  ix.domain([iMinDate, iMaxDate]);
   iyCases  = d3.scaleLinear().domain([0, maxC * 1.05]).range([IHC, 0]);
   iyDeaths = d3.scaleLinear().domain([0, maxD * 1.05]).range([IHD, 0]);
   iyMort   = d3.scaleLinear().domain([0, maxM * 1.1]).range([IHC, 0]);
 }
 
-// SVG builders
+// ── SVG builders ──────────────────────────────────────────────────────────────
 function makeiSVG(h, clipId, titleText) {
   const svg = iRoot.append("svg").attr("class","ichart")
     .attr("width", ITW).attr("height", h + IM.top + IM.bottom)
@@ -489,8 +534,8 @@ function makeiSVG(h, clipId, titleText) {
   return { svg, g: svg.append("g").attr("transform", `translate(${IM.left},${IM.top})`) };
 }
 
-const { svg: iSvgC, g: iGC } = makeiSVG(IHC, "iclip-c", "Recorded Polio Cases, United States");
-const { svg: iSvgD, g: iGD } = makeiSVG(IHD, "iclip-d", "Recorded Polio Deaths, United States");
+const { svg: iSvgC, g: iGC } = makeiSVG(IHC, "iclip-c", "Recorded COVID-19 Cases, United States");
+const { svg: iSvgD, g: iGD } = makeiSVG(IHD, "iclip-d", "Recorded COVID-19 Deaths, United States");
 
 // ── Persistent chart elements ─────────────────────────────────────────────────
 const iGrC  = iGC.append("g").attr("class","igrid-y");
@@ -504,7 +549,7 @@ const iXAD  = iGD.append("g").attr("class","ix-axis").attr("transform",`translat
 iGC.append("text").attr("transform","rotate(-90)").attr("y",-65).attr("x",-IHC/2).attr("text-anchor","middle").style("font-size","12px").text("Cases");
 iGD.append("text").attr("transform","rotate(-90)").attr("y",-65).attr("x",-IHD/2).attr("text-anchor","middle").style("font-size","12px").text("Deaths");
 // X label (deaths only)
-iGD.append("text").attr("x",IW/2).attr("y",IHD+36).attr("text-anchor","middle").style("font-size","12px").text("Year");
+// iGD.append("text").attr("x",IW/2).attr("y",IHD+36).attr("text-anchor","middle").style("font-size","12px").text("Year");
 
 // Area paths
 const iPathC = iGC.append("path").attr("clip-path","url(#iclip-c)").attr("fill","#3b82f6").attr("fill-opacity",0.7).attr("stroke","#1e40af").attr("stroke-width",1.5);
@@ -520,15 +565,14 @@ const iMortAxisLbl = iSvgC.append("text")
 
 // Vaccine markers (added before brush so they're behind the brush overlay)
 const iVaccC = {}, iVaccD = {};
-[{yr:1955,lbl:"IPV (1955)"},{yr:1961,lbl:"OPV (1961)"}].forEach(v => {
-  iVaccC[v.yr] = {
-    line:  iGC.append("line").attr("y1",0).attr("y2",IHC).attr("stroke","#11910f").attr("stroke-dasharray","4,3"),
-    label: iGC.append("text").attr("fill","#0b7509").style("font-size","11px").text(v.lbl),
-  };
-  iVaccD[v.yr] = {
-    line: iGD.append("line").attr("y1",0).attr("y2",IHD).attr("stroke","#16a34a").attr("stroke-dasharray","4,3"),
-  };
-});
+const vaccKey = "2020-12-14";
+iVaccC[vaccKey] = {
+  line:  iGC.append("line").attr("y1",0).attr("y2",IHC).attr("stroke","#11910f").attr("stroke-dasharray","4,3"),
+  label: iGC.append("text").attr("fill","#0b7509").style("font-size","11px").text("Vaccines (Dec 2020)"),
+};
+iVaccD[vaccKey] = {
+  line: iGD.append("line").attr("y1",0).attr("y2",IHD).attr("stroke","#16a34a").attr("stroke-dasharray","4,3"),
+};
 
 // Hover crosshair elements (below brush overlay in z-order, visible because overlay is transparent)
 const iHLC = iGC.append("line").attr("stroke","#666").attr("stroke-width",1).attr("y1",0).attr("y2",IHC).attr("opacity",0).attr("pointer-events","none");
@@ -549,8 +593,19 @@ const iBrush = d3.brushX()
   .on("end", function (event) {
     if (!event.selection) return;
     const [x0, x1] = event.selection;
-    iMinYear = Math.max(MIN_YEAR, Math.round(ix.invert(x0)));
-    iMaxYear = Math.min(MAX_YEAR, Math.max(iMinYear + 2, Math.round(ix.invert(x1))));
+    let nextMin = snapToWeek(ix.invert(x0));
+    let nextMax = snapToWeek(ix.invert(x1));
+
+    if (nextMax.getTime() - nextMin.getTime() < MIN_WINDOW_MS) {
+      nextMax = new Date(nextMin.getTime() + MIN_WINDOW_MS);
+    }
+    if (nextMax > MAX_DATE) {
+      nextMax = MAX_DATE;
+      nextMin = new Date(Math.max(MIN_DATE.getTime(), nextMax.getTime() - MIN_WINDOW_MS));
+    }
+
+    iMinDate = nextMin;
+    iMaxDate = nextMax;
     iBrushG.call(iBrush.move, null);  // clear the brush rectangle
     iUpdate();
     iSyncSliders();
@@ -563,16 +618,15 @@ iBrushG.call(iBrush);
 iBrushG.select(".overlay")
   .on("mousemove.hover", function (event) {
     const [mx] = d3.pointer(event, this);
-    const yr = Math.round(ix.invert(mx));
-    const d  = data.find(p => p.year === yr);
-    if (!d || d.year < iMinYear || d.year > iMaxYear) {
+    const d = dataByTime.get(snapToWeek(ix.invert(mx)).getTime());
+    if (!d || d.date < iMinDate || d.date > iMaxDate) {
       iHLC.attr("opacity", 0); iHDC.attr("opacity", 0); iTip.style("opacity", 0); return;
     }
-    const cx  = ix(d.year);
+    const cx  = ix(d.date);
     const ccy = iyCases(d.cases);
     iHLC.attr("x1", cx).attr("x2", cx).attr("opacity", 1);
     iHDC.attr("cx",  cx).attr("cy",  ccy).attr("opacity", 1);
-    let html = `<strong>${d.year}</strong><br>Cases: <strong>${d3.format(",")(d.cases)}</strong>`;
+    let html = `<strong>${fmtTip(d.date)}</strong><br>Cases: <strong>${d3.format(",")(d.cases)}</strong>`;
     if (iShowMortality && d.cases > 0) html += `<br>Mortality: <strong>${Math.min(100, d.deaths / d.cases * 100).toFixed(1)}%</strong>`;
     iTip.style("left", (event.clientX + 14) + "px").style("top", (event.clientY - 40) + "px")
       .style("opacity", 1).html(html);
@@ -583,40 +637,43 @@ iBrushG.select(".overlay")
 iGD.append("rect").attr("width", IW).attr("height", IHD).attr("fill", "transparent")
   .on("mousemove", function (event) {
     const [mx] = d3.pointer(event, this);
-    const yr = Math.round(ix.invert(mx));
-    const d  = data.find(p => p.year === yr);
-    if (!d || d.year < iMinYear || d.year > iMaxYear) {
+    const d = dataByTime.get(snapToWeek(ix.invert(mx)).getTime());
+    if (!d || d.date < iMinDate || d.date > iMaxDate) {
       iHLD.attr("opacity", 0); iHDD.attr("opacity", 0); iTip.style("opacity", 0); return;
     }
-    const cx  = ix(d.year);
+    const cx  = ix(d.date);
     const cdy = iyDeaths(d.deaths);
     iHLD.attr("x1", cx).attr("x2", cx).attr("opacity", 1);
     iHDD.attr("cx",  cx).attr("cy",  cdy).attr("opacity", 1);
     iTip.style("left", (event.clientX + 14) + "px").style("top", (event.clientY - 40) + "px")
-      .style("opacity", 1).html(`<strong>${d.year}</strong><br>Deaths: <strong>${d3.format(",")(d.deaths)}</strong>`);
+      .style("opacity", 1).html(`<strong>${fmtTip(d.date)}</strong><br>Deaths: <strong>${d3.format(",")(d.deaths)}</strong>`);
   })
   .on("mouseleave", () => { iHLD.attr("opacity", 0); iHDD.attr("opacity", 0); iTip.style("opacity", 0); });
 
 // Double-click either chart to reset range
-iSvgC.on("dblclick", () => { iMinYear = MIN_YEAR; iMaxYear = MAX_YEAR; iUpdate(); iSyncSliders(); });
-iSvgD.on("dblclick", () => { iMinYear = MIN_YEAR; iMaxYear = MAX_YEAR; iUpdate(); iSyncSliders(); });
+iSvgC.on("dblclick", () => { iMinDate = MIN_DATE; iMaxDate = MAX_DATE; iUpdate(); iSyncSliders(); });
+iSvgD.on("dblclick", () => { iMinDate = MIN_DATE; iMaxDate = MAX_DATE; iUpdate(); iSyncSliders(); });
 
 // ── Update function ───────────────────────────────────────────────────────────
 // NOTE: We deliberately avoid d3.transition() (root transition ID=1) because
 // Observable Framework's runtime invalidates it between cell re-runs.
 // Instead, every selection gets its own .transition().duration() call.
 function iUpdate(animate = true) {
+  if (iMaxDate.getTime() - iMinDate.getTime() < MIN_WINDOW_MS) {
+    iMaxDate = new Date(Math.min(MAX_DATE.getTime(), iMinDate.getTime() + MIN_WINDOW_MS));
+  }
+
   iComputeScales();
-  const vis = data.filter(d => d.year >= iMinYear && d.year <= iMaxYear);
+  const vis = data.filter(d => d.date >= iMinDate && d.date <= iMaxDate);
   const dur = animate ? 350 : 0;
   const ease = d3.easeCubicOut;
 
   // X axes
-  const range = iMaxYear - iMinYear;
-  const ticks = range <= 8 ? range : range <= 25 ? 5 : range <= 60 ? 8 : 12;
-  const xFn   = d3.axisBottom(ix).tickFormat(d3.format("d")).ticks(ticks);
+  const xFn = makeTimeAxis(ix, iMinDate, iMaxDate);
   iXAC.transition().duration(dur).ease(ease).call(xFn);
   iXAD.transition().duration(dur).ease(ease).call(xFn);
+  iXAC.call(g => styleTimeAxisLabels(g));
+  iXAD.call(g => styleTimeAxisLabels(g));
 
   // Y axes
   const yFmt = d3.format(",~s");
@@ -634,15 +691,15 @@ function iUpdate(animate = true) {
     .call(g => g.selectAll("line").attr("stroke", "#e5e7eb"));
 
   // Area paths
-  const areaC = d3.area().x(d => ix(d.year)).y0(IHC).y1(d => iyCases(d.cases)).curve(d3.curveMonotoneX);
-  const areaD = d3.area().x(d => ix(d.year)).y0(IHD).y1(d => iyDeaths(d.deaths)).curve(d3.curveMonotoneX);
+  const areaC = d3.area().x(d => ix(d.date)).y0(IHC).y1(d => iyCases(d.cases)).curve(d3.curveMonotoneX);
+  const areaD = d3.area().x(d => ix(d.date)).y0(IHD).y1(d => iyDeaths(d.deaths)).curve(d3.curveMonotoneX);
   iPathC.transition().duration(dur).ease(ease).attr("d", areaC(vis));
   iPathD.transition().duration(dur).ease(ease).attr("d", areaD(vis));
 
   // Mortality overlay — rate capped at 100%
   if (iShowMortality) {
-    const mVis  = vis.filter(d => d.cases > 0).map(d => ({ year: d.year, rate: Math.min(100, d.deaths / d.cases * 100) }));
-    const lineM = d3.line().x(d => ix(d.year)).y(d => iyMort(d.rate)).curve(d3.curveMonotoneX);
+    const mVis  = vis.filter(d => d.cases > 0).map(d => ({ date: d.date, rate: Math.min(100, d.deaths / d.cases * 100) }));
+    const lineM = d3.line().x(d => ix(d.date)).y(d => iyMort(d.rate)).curve(d3.curveMonotoneX);
     iMortPath.transition().duration(dur).ease(ease).attr("d", lineM(mVis)).attr("opacity", 1);
     iMortAxisG.transition().duration(dur).ease(ease)
       .call(d3.axisRight(iyMort).tickFormat(d => d.toFixed(0) + "%").ticks(5))
@@ -662,21 +719,21 @@ function iUpdate(animate = true) {
   const totalCases  = d3.sum(vis, d => d.cases);
   const totalDeaths = d3.sum(vis, d => d.deaths);
   iStatsEl.html(
-    `<strong>${iMinYear}–${iMaxYear}</strong>` +
+    `<strong>${fmtTip(iMinDate)}–${fmtTip(iMaxDate)}</strong>` +
     ` &nbsp;·&nbsp; Total Cases: <strong>${d3.format(",")(totalCases)}</strong>` +
     ` &nbsp;·&nbsp; Total Deaths: <strong>${d3.format(",")(totalDeaths)}</strong>`
   );
 
   // Vaccine markers (no transition needed — position snaps with scale)
-  // IPV and OPV labels at different heights so they don't collide
-  const vaccLabelY = { 1955: IHC * 0.18, 1961: IHC * 0.36 };
-  [1955, 1961].forEach(yr => {
-    const show = yr >= iMinYear && yr <= iMaxYear;
-    const vx   = ix(yr);
-    iVaccC[yr].line.attr("x1", vx).attr("x2", vx).attr("opacity", show ? 0.7 : 0);
-    iVaccC[yr].label.attr("x", vx + 5).attr("y", vaccLabelY[yr]).attr("opacity", show ? 1 : 0);
-    iVaccD[yr].line.attr("x1", vx).attr("x2", vx).attr("opacity", show ? 0.7 : 0);
-  });
+  const vaccineDate = new Date("2020-12-14");
+  const vaccKey = "2020-12-14";
+  const vaccLabelY = { [vaccKey]: IHC * 0.25 };
+  const show = vaccineDate >= iMinDate && vaccineDate <= iMaxDate;
+  const vx = ix(vaccineDate);
+  
+  iVaccC[vaccKey].line.attr("x1", vx).attr("x2", vx).attr("opacity", show ? 0.7 : 0);
+  iVaccC[vaccKey].label.attr("x", vx + 5).attr("y", vaccLabelY[vaccKey]).attr("opacity", show ? 1 : 0);
+  iVaccD[vaccKey].line.attr("x1", vx).attr("x2", vx).attr("opacity", show ? 0.7 : 0);
 }
 
 // ── Sync slider to state (called by brush and preset buttons) ─────────────────
@@ -686,7 +743,7 @@ function iSyncSliders() {
 
 // ── Initial render ─────────────────────────────────────────────────────────────
 iComputeScales();
-sliderRender();   // place handles at 1910 and 2023 before first paint
+sliderRender();   // place handles at full COVID range before first paint
 iUpdate(false);
 display(iRoot.node());
 ```
@@ -694,17 +751,17 @@ display(iRoot.node());
 <div class="section-below">
 
 <div class="callout">
-<strong>Before vaccines</strong> — Polio struck the U.S. repeatedly from the early 1900s. The worst year on record was <strong>1952</strong>, with <strong>57,879 cases</strong>, where roughly one American in every 3,000 was affected.
+<strong>Before vaccines</strong> - COVID-19 deaths rose sharply through 2020 in the United States, with large winter surges placing sustained pressure on hospitals and public health systems.
 </div>
 
 <div class="callout">
-<strong>The Salk vaccine (IPV, 1955)</strong> — Jonas Salk's inactivated poliovirus vaccine was declared safe and effective in April 1955. Within three years, cases fell by over 80%.
+<strong>Pfizer-BioNTech rollout (Dec 14, 2020)</strong> - The first U.S. COVID-19 vaccine doses were administered to the public on December 14, 2020, marking the start of mass immunization.
 </div>
 
 <div class="callout">
-<strong>The Sabin vaccine (OPV, 1961)</strong> — Albert Sabin's oral polio vaccine was licensed in 1961. It was easier to administer, and alongisde the Salk vaccine, they drove Polio cases into the single digits within a decade.
+<strong>Moderna rollout (Dec 21, 2020)</strong> - One week later, Moderna doses began public deployment, expanding vaccine supply and accelerating protection for high-risk groups.
 </div>
 
-The last case of wild poliovirus in the U.S. was reported in **1979**.
+As vaccine coverage increased through 2021, deaths declined substantially relative to the largest pre-vaccine waves, even as new variants continued to drive case surges.
 
 </div>
