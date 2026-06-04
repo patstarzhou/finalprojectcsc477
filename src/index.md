@@ -3,20 +3,20 @@ toc: false
 ---
 
 <div class="hero">
-  <h1 style="color: #FFFFFF;">Get Vaccinated.</h1>
-  <p class="hero-sub"><div>A scrolling narrative on how vaccines changed disease outcomes in the United States.</div></p>
+  <h1>Get Vaccinated.</h1>
+  <p class="hero-sub">A scrolling narrative on how vaccines changed disease outcomes in the United States.</p>
 </div>
 
 ## Introduction
 
 <section class="panel">
-  <div>
+  <p>
     Before modern medicine, diseases terrorized human populations all over the world. Outbreaks of
     measles and polio killed thousands yearly. The development and widespread adoption of vaccines
     almost, if not completely, eradicated these former killers. For our project, we wanted to visualize
     the impact of polio, measles, and COVID-19 in the US, and the role that modern vaccinations have
     played in stopping the spread of these diseases that have killed millions throughout human history.
-  </div>
+  </p>
 </section>
 
 ## Polio
@@ -40,10 +40,10 @@ toc: false
 ## Conclusion
 
 <section class="panel">
-  <div>
+  <p>
     Across all three timelines, the pattern is consistent in that once vaccination becomes widespread,
     deaths decline. The data reinforces one message, and it is that vaccination saves lives.
-  </div>
+  </p>
 </section>
 
 ## Data Sources
@@ -80,13 +80,14 @@ toc: false
   font-weight: 850;
   letter-spacing: 0.01em;
   line-height: 1;
+  color: var(--theme-foreground);
 }
 
 .hero-sub {
   margin: 0.8rem 0 0;
   max-width: 62ch;
   font-family: var(--sans-serif);
-  color: #ffffff;
+  color: var(--theme-foreground-muted);
   font-size: 1.02rem;
   line-height: 1.55;
 }
@@ -105,29 +106,31 @@ toc: false
   max-width: 880px;
   margin: 0.2rem auto 0.85rem;
   font-family: var(--sans-serif);
-  color: #ffffff;
+  color: var(--theme-foreground-muted);
 }
 
-.panel p {
+.panel,
+.panel p,
+.panel div {
   margin: 0;
   font-family: var(--sans-serif);
   font-size: 1.04rem;
   line-height: 1.75;
-  color: #ffffff;
+  color: var(--theme-foreground);
 }
 
 h2 {
-  color: #ffffff;
+  color: var(--theme-foreground);
 }
 
 .viz-panel {
   max-width: 1000px;
   margin: 0 auto 2.8rem;
-  border: 1px solid #dbe3f3;
+  border: 1px solid var(--theme-foreground-faint, #dbe3f3);
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.11);
-  background: #fff;
+  background: var(--theme-background);
 }
 
 .viz-frame {
@@ -150,6 +153,10 @@ h2 {
 
 .sources p + p {
   margin-top: 0.9rem;
+}
+
+.sources a {
+  color: var(--theme-foreground-focus, #2563eb);
 }
 
 @media (max-width: 640px) {
